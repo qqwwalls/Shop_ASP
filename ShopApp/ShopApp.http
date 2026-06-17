@@ -6,3 +6,7 @@ Accept: application/json
 ###
 
 GET {{ShopApp_HostAddress}}/api/product
+
+###
+
+GET {{ShopApp_HostAddress}}/api/product/46
