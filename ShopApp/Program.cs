@@ -7,23 +7,12 @@ namespace ShopApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddScoped<ShopApp.Interfaces.IProductService, ShopApp.Services.ProductService>();
+            builder.Services.AddSingleton<ShopApp.Interfaces.ICategoryService, ShopApp.Services.CategoryService>();
 
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            //builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.MapOpenApi();
-            //}
-
-            //app.UseHttpsRedirection();
-
-            //app.UseAuthorization();
 
 
             app.MapControllers();

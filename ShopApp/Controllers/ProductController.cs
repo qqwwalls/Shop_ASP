@@ -9,7 +9,6 @@ namespace ShopApp.Controllers
     {
         private static List<Product> _products = new List<Product>();
 
-        // Метод POST додає продукт у список, якщо продукта з таким самим ім'ям не має
         [HttpPost]
         public IActionResult AddProduct([FromBody] Product product)
         {
@@ -21,7 +20,6 @@ namespace ShopApp.Controllers
             return Ok(product);
         }
 
-        // Метод GET видає всі продукти, які IsActive == true
         [HttpGet]
         public IActionResult GetActiveProducts()
         {
@@ -29,7 +27,6 @@ namespace ShopApp.Controllers
             return Ok(activeProducts);
         }
 
-        // Метод GET /id видає 1 продукт з масива, якщо немає NotFound (404)
         [HttpGet("{id}")]
         public IActionResult GetProductById(int id)
         {
@@ -41,7 +38,6 @@ namespace ShopApp.Controllers
             return Ok(product);
         }
 
-        // Метод DELETE видаляє продукта за id, якщо його немає NotFound (404)
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
@@ -54,7 +50,6 @@ namespace ShopApp.Controllers
             return Ok();
         }
 
-        // Метод PUT дозволяє змінити дані про продукт за певним id, якщо його немає NotFound (404)
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, [FromBody] Product updatedProduct)
         {
