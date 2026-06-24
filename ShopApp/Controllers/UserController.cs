@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Shop.Domain.Models;
+using Shop.App.Filters;
 
 namespace ShopApp.Controllers
 {
@@ -8,6 +9,7 @@ namespace ShopApp.Controllers
     public class UserController : ControllerBase
     {
         [HttpPost("register")]
+        [AdminAuthFilter]
         public IActionResult Register([FromBody] User user)
         {
             return Ok(user);
