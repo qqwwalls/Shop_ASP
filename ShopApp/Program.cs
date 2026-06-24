@@ -14,7 +14,8 @@ namespace ShopApp
 
             var app = builder.Build();
 
-
+            app.UseMiddleware<ShopApp.Middlewares.RequestTimerMiddleware>();
+            app.UseMiddleware<ShopApp.Middlewares.UserCheckMiddleware>();
             app.MapControllers();
 
             app.Run();
