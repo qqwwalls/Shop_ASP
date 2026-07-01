@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using ShopDomain.Models;
+using ShopApplication.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ShopApp.Controllers
+namespace ShopApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -12,9 +15,9 @@ namespace ShopApp.Controllers
         [HttpPost]
         public IActionResult AddProduct([FromBody] Product product)
         {
-            if (_products.Any(p => p.Title == product.Title))
+            if (_products.Any(p => p.Name == product.Name))
             {
-                return BadRequest("Product with the same title already exists.");
+                return BadRequest("Product with the same name already exists.");
             }
             _products.Add(product);
             return Ok(product);
@@ -59,10 +62,11 @@ namespace ShopApp.Controllers
                 return NotFound();
             }
 
-            product.Title = updatedProduct.Title;
+            product.Name = updatedProduct.Name;
+            product.Description = updatedProduct.Description;
             product.Price = updatedProduct.Price;
-            product.Count = updatedProduct.Count;
-            product.Discount = updatedProduct.Discount;
+            product.StockQty = updatedProduct.StockQty;
+            product.CategoryId = updatedProduct.CategoryId;
             product.IsActive = updatedProduct.IsActive;
 
             return Ok(product);

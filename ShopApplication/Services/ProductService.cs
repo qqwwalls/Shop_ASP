@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using ShopDomain.Models;
 
-using ShopApp.Interfaces;
+using ShopApplication.Interfaces;
 
-namespace ShopApp.Services
+namespace ShopApplication.Services
 {
     public class ProductService : IProductService
     {

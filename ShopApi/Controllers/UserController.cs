@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Domain.Models;
 using Shop.App.Filters;
 
-namespace ShopApp.Controllers
+namespace ShopApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ShopDomain.Models;
 
-namespace ShopApp.Interfaces
+namespace ShopApplication.Interfaces
 {
     public interface IProductService
     {

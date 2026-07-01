@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
-namespace ShopApp.Middlewares
+namespace ShopApi.Middlewares
 {
     public class RequestTimerMiddleware
     {

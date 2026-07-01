@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using ShopDomain.Models;
-using ShopApp.Interfaces;
+using ShopApplication.Interfaces;
 
-namespace ShopApp.Services
+namespace ShopApplication.Services
 {
     public class CategoryService : ICategoryService
     {
@@ -16,22 +16,18 @@ namespace ShopApp.Services
                 new Category 
                 { 
                     Id = 1, 
-                    Title = "Electronics", 
-                    Description = "Gadgets and devices", 
-                    Image = "electronics.png", 
+                    Name = "Electronics", 
+                    Slug = "electronics", 
                     CreatedAt = DateTime.UtcNow, 
                     UpdatedAt = DateTime.UtcNow, 
-                    IsShow = true 
                 },
                 new Category 
                 { 
                     Id = 2, 
-                    Title = "Books", 
-                    Description = "Printed materials", 
-                    Image = "books.png", 
+                    Name = "Books", 
+                    Slug = "books", 
                     CreatedAt = DateTime.UtcNow, 
                     UpdatedAt = DateTime.UtcNow, 
-                    IsShow = true 
                 }
             };
         }

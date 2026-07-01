@@ -1,4 +1,6 @@
 <Solution>
-  <Project Path="ShopApp/ShopApp.csproj" />
+  <Project Path="ShopApi/ShopApi.csproj" />
   <Project Path="ShopDomain/ShopDomain.csproj" />
+  <Project Path="ShopApplication/ShopApplication.csproj" />
+  <Project Path="ShopInfrastructure/ShopInfrastructure.csproj" />
 </Solution>
