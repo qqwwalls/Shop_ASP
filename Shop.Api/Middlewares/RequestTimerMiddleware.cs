@@ -11,23 +11,20 @@ namespace Shop.Api.Middlewares
  
         public RequestTimerMiddleware(RequestDelegate next, ILogger<RequestTimerMiddleware> logger)
         {
-            _next = next; // Посилання на наступний middleware у черзі
+            _next = next;
             _logger = logger;
         }
  
         public async Task InvokeAsync(HttpContext context)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var stopwatch = Stopwatch.StartNew();
  
-            // 1. Код ДО наступного компонента
-            _logger.LogInformation("Початок запиту: {Path}", context.Request.Path);
+            _logger.LogInformation("Request started: {Path}", context.Request.Path);
  
-            // 2. Передаємо керування далі
             await _next(context);
  
-            // 3. Код ПІСЛЯ того, як відпрацював контролер
-            watch.Stop();
-            _logger.LogInformation("Запит завершено за {Ms} мс", watch.ElapsedMilliseconds);
+            stopwatch.Stop();
+            _logger.LogInformation("Request finished in {Ms} ms", stopwatch.ElapsedMilliseconds);
         }
     }
 }

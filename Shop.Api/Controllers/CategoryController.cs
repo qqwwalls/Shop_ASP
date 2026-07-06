@@ -55,9 +55,9 @@ namespace Shop.Api.Controllers
             var id = await _categoryService.CreateCategoryAsync(createDto);
 
             return CreatedAtAction(
-                nameof(GetCategoryById), // назва методу
-                new { id },              // параметри маршруту
-                new { id });             // тіло відповіді
+                nameof(GetCategoryById),
+                new { id },
+                new { id });
         }
     }
 }
