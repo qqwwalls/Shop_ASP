@@ -26,7 +26,11 @@ namespace Shop.Api
 
             builder.Services.AddScoped<Shop.Api.Interfaces.IImageService, Shop.Api.Services.ImageService>();
 
-            builder.Services.AddAutoMapper(cfg => cfg.AddProfile<Shop.Application.Mappings.MappingProfile>());
+            // ================= AutoMapper =================
+            builder.Services.AddAutoMapper(
+                _ => { },
+                typeof(Shop.Application.Mappings.CategoryProfile).Assembly
+            );
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

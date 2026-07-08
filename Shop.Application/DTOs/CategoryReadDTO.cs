@@ -10,6 +10,7 @@ namespace Shop.Application.DTOs
         public string Url { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public int? ParentId { get; set; }
+        public List<int> Products { get; set; } = new List<int>();
     }
 
     public class CategoryCreateDTO

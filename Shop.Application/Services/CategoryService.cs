@@ -25,14 +25,10 @@ public class CategoryService(ICategoryRepository _repository, IMapper _mapper) :
         return _mapper.Map<CategoryReadDTO>(category);
     }
 
+    //TODO: додати Automapper
     public async Task<int?> CreateCategoryAsync(CategoryCreateDTO dto)
     {
-        return await _repository.AddCategoryAsync(new Category()
-        {
-            Name = dto.Name,
-            Slug = dto.Slug,
-            Url = dto.Url,
-            ParentId = dto.ParentId,
-        });
+        var category = _mapper.Map<Category>(dto);
+        return await _repository.AddCategoryAsync(category);
     }
 }
