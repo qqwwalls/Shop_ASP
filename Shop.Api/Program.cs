@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Shop.Infrastructure.Data;
 using Shop.Application.Interfaces.Repository;
 using Shop.Application.Interfaces.Services;
+using Shop.Application.Interfaces.Helpers;
 using Shop.Application.Services;
+using Shop.Application.Helpers;
+using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Repositories;
 
 namespace Shop.Api
@@ -20,9 +22,12 @@ namespace Shop.Api
 
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IHashHelper, HashHelper>();
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
             builder.Services.AddScoped<Shop.Api.Interfaces.IImageService, Shop.Api.Services.ImageService>();
 
@@ -39,6 +44,17 @@ namespace Shop.Api
                 c.EnableAnnotations();
             });
 
+            // ================= CORS =================
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyMethod()
+                          .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -46,6 +62,8 @@ namespace Shop.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("AllowAll");
 
             app.UseStaticFiles();
             app.UseMiddleware<Shop.Api.Middlewares.RequestTimerMiddleware>();

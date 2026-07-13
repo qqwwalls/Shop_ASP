@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Shop.Api.Middlewares
 {

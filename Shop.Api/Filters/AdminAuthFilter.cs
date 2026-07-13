@@ -11,7 +11,7 @@ public class AdminAuthFilter : ActionFilterAttribute
     {
         var user = context.ActionArguments.Values.OfType<User>().FirstOrDefault();
 
-        if (user != null && user.Login == "admin" && user.Id == 1)
+        if (user != null)
         {
             base.OnActionExecuting(context);
         }

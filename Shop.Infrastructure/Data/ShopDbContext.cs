@@ -65,7 +65,7 @@ namespace Shop.Infrastructure.Data
                 entity.HasOne(p => p.Category)
                       .WithMany(c => c.Products)
                       .HasForeignKey(p => p.CategoryId)
-                      .OnDelete(DeleteBehavior.Restrict); // забороняємо видалення
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             // --- ProductImage ---
@@ -75,6 +75,12 @@ namespace Shop.Infrastructure.Data
                       .WithMany(p => p.Images)
                       .HasForeignKey(i => i.ProductId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --- User ---
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(u => u.Email).IsUnique();
             });
         }
     }
