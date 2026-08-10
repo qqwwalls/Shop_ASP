@@ -6,6 +6,10 @@ using Shop.Application.Services;
 using Shop.Application.Helpers;
 using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System;
 
 namespace Shop.Api
 {
@@ -14,6 +18,38 @@ namespace Shop.Api
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            var configuration = builder.Configuration;
+
+            // ================= JWT Settings =================
+            var jwtSettings = configuration.GetSection("Jwt").Get<Shop.Application.Settings.JwtSettings>()
+                ?? throw new Exception("JWT settings not configured.");
+            
+            builder.Services.Configure<Shop.Application.Settings.JwtSettings>(configuration.GetSection("Jwt"));
+
+            // ================= Authentication =================
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                //Правила перевірки токена
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtSettings.Key)
+                    ),
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+            builder.Services.AddAuthorization();
 
             builder.Services.AddDbContext<ShopDbContext>(options =>
             {
@@ -24,6 +60,7 @@ namespace Shop.Api
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IHashHelper, HashHelper>();
+            builder.Services.AddScoped<IJWTService, JWTService>();
 
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -57,6 +94,21 @@ namespace Shop.Api
 
             var app = builder.Build();
 
+            // ================= Seeding =================
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    Shop.Infrastructure.Data.DbSeeder.SeedAdminAsync(services).Wait();
+                }
+                catch (Exception ex)
+                {
+                    var logger = services.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while seeding the database.");
+                }
+            }
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -66,6 +118,10 @@ namespace Shop.Api
             app.UseCors("AllowAll");
 
             app.UseStaticFiles();
+            
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseMiddleware<Shop.Api.Middlewares.RequestTimerMiddleware>();
             app.MapControllers();
 

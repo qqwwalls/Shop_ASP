@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Shop.Domain.Enums;
@@ -25,4 +26,6 @@ public class User : BaseEntity
 
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
+
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }
