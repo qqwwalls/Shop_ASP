@@ -106,5 +106,43 @@ namespace Shop.Application.Services
 
             return _jwtService.GenerateAccessToken(loginDto, tokenEntity.User.Role.ToString());
         }
+
+        public async Task<string?> GeneratePasswordResetTokenAsync(ForgotPasswordDTO dto)
+        {
+            var user = await _repository.GetUserByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // Generate a random token
+            var tokenBytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(32);
+            var token = Convert.ToBase64String(tokenBytes);
+
+            user.ResetPasswordToken = token;
+            user.ResetPasswordTokenExpires = System.DateTime.UtcNow.AddHours(1);
+
+            await _repository.UpdateUserAsync(user);
+
+            return token;
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO dto)
+        {
+            var user = await _repository.GetUserByResetTokenAsync(dto.Token);
+
+            if (user == null || user.ResetPasswordTokenExpires <= System.DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            user.PasswordHash = _hashHelper.Hash(dto.NewPassword);
+            user.ResetPasswordToken = null;
+            user.ResetPasswordTokenExpires = null;
+
+            await _repository.UpdateUserAsync(user);
+
+            return true;
+        }
     }
 }

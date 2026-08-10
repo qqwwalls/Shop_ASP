@@ -27,5 +27,11 @@ public class User : BaseEntity
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
 
+    [Column("reset_password_token")]
+    public string? ResetPasswordToken { get; set; }
+
+    [Column("reset_password_token_expires")]
+    public DateTime? ResetPasswordTokenExpires { get; set; }
+
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 }

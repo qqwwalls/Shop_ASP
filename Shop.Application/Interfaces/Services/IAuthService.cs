@@ -9,5 +9,7 @@ namespace Shop.Application.Interfaces.Services
         Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> RegisterAdminAsync(UserCreateDTO dto);
         Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> LoginAsync(UserLoginDTO dto);
         Task<string?> RefreshAccessTokenAsync(string refreshToken);
+        Task<string?> GeneratePasswordResetTokenAsync(ForgotPasswordDTO dto);
+        Task<bool> ResetPasswordAsync(ResetPasswordDTO dto);
     }
 }

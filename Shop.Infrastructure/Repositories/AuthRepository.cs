@@ -36,6 +36,17 @@ namespace Shop.Infrastructure.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetUserByResetTokenAsync(string token)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.ResetPasswordToken == token);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task SaveRefreshTokenAsync(RefreshToken token)
         {
             await _context.RefreshTokens.AddAsync(token);

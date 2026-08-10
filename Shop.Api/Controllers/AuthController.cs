@@ -110,5 +110,46 @@ namespace Shop.Api.Controllers
 
             return Ok(new { Token = newAccessToken });
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var token = await _authService.GeneratePasswordResetTokenAsync(dto);
+
+            if (token == null)
+            {
+                // To prevent email enumeration attacks, we usually return Ok even if the email wasn't found
+                return Ok(new { Message = "If that email address is in our database, we will send you an email to reset your password." });
+            }
+
+            // In a real app, send an email here. For now, just return it so it can be tested in Swagger.
+            return Ok(new { 
+                Message = "In a real app, an email would be sent. For testing purposes, here is the token.",
+                ResetToken = token 
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var success = await _authService.ResetPasswordAsync(dto);
+
+            if (!success)
+            {
+                return BadRequest("Invalid or expired reset token.");
+            }
+
+            return Ok(new { Message = "Password has been successfully reset." });
+        }
     }
 }
