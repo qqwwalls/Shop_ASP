@@ -6,7 +6,7 @@ namespace Shop.Application.Interfaces.Services
 {
     public interface ICategoryService
     {
-        List<CategoryReadDTO> GetAllCategories();
+        Task<List<CategoryReadDTO>> GetAllCategoriesAsync();
         Task<int?> CreateCategoryAsync(CategoryCreateDTO dto);
         Task<CategoryReadDTO?> GetCategoryByIdAsync(int id);
     }

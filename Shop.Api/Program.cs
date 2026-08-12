@@ -68,6 +68,10 @@ namespace Shop.Api
 
             builder.Services.AddScoped<Shop.Api.Interfaces.IImageService, Shop.Api.Services.ImageService>();
 
+            // ================= Caching =================
+            builder.Services.AddMemoryCache();
+            builder.Services.AddScoped<ICachingService, Shop.Infrastructure.Services.MemoryCachingService>();
+
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
                 _ => { },
@@ -84,12 +88,21 @@ namespace Shop.Api
             // ================= CORS =================
             builder.Services.AddCors(options =>
             {
+                // Політика для розробки (дозволяє все)
                 options.AddPolicy("AllowAll", policy =>
                 {
                     policy.AllowAnyOrigin()
                           .AllowAnyMethod()
                           .AllowAnyHeader();
                 });
+
+                // Політика для продакшену (сувора) - як показувала викладачка
+                // options.AddPolicy("ProductionPolicy", policy =>
+                // {
+                //     policy.WithOrigins("https://miy-magazin.com", "https://www.miy-magazin.com")
+                //           .WithMethods("GET", "POST", "PUT", "DELETE")
+                //           .WithHeaders("Content-Type", "Authorization");
+                // });
             });
 
             var app = builder.Build();
