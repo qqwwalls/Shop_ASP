@@ -59,5 +59,13 @@ namespace Shop.Api.Controllers
                 new { id },
                 new { id });
         }
+
+        // ================= ТЕСТОВИЙ МАРШРУТ ДЛЯ ПЕРЕВІРКИ ПОМИЛОК =================
+        [HttpGet("test-error")]
+        public IActionResult TestError()
+        {
+            // Ця помилка буде перехоплена нашим новим глобальним ErrorController
+            throw new Exception("Це тестова помилка для перевірки глобального обробника!");
+        }
     }
 }

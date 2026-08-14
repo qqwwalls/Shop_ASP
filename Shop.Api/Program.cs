@@ -107,6 +107,10 @@ namespace Shop.Api
 
             var app = builder.Build();
 
+            // ================= Exception Handling =================
+            // Перехоплює всі необроблені помилки та направляє їх на ErrorController
+            app.UseExceptionHandler("/error");
+
             // ================= Seeding =================
             using (var scope = app.Services.CreateScope())
             {
