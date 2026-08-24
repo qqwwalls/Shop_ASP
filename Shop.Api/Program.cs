@@ -69,8 +69,27 @@ namespace Shop.Api
             builder.Services.AddScoped<Shop.Api.Interfaces.IImageService, Shop.Api.Services.ImageService>();
 
             // ================= Caching =================
-            builder.Services.AddMemoryCache();
-            builder.Services.AddScoped<ICachingService, Shop.Infrastructure.Services.MemoryCachingService>();
+            // Configure Redis Cache
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+            });
+
+            // Register IConnectionMultiplexer for explicit Redis operations (like Lists)
+            builder.Services.AddSingleton<StackExchange.Redis.IConnectionMultiplexer>(sp =>
+            {
+                return StackExchange.Redis.ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection"));
+            });
+
+            // Register CachingService
+            builder.Services.AddSingleton<Shop.Application.Interfaces.Services.ICachingService, Shop.Infrastructure.Services.RedisCachingService>();
+
+            // ================= RabbitMQ =================
+            builder.Services.Configure<Shop.Infrastructure.Configuration.RabbitMqSettings>(
+                builder.Configuration.GetSection("RabbitMq")
+            );
+            builder.Services.AddScoped<Shop.Application.Interfaces.Services.IQueueService, Shop.Infrastructure.Services.RabbitMqService>();
+            builder.Services.AddHostedService<Shop.Api.Services.RabbitMqReaderService>();
 
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
@@ -88,12 +107,13 @@ namespace Shop.Api
             // ================= CORS =================
             builder.Services.AddCors(options =>
             {
-                // Політика для розробки (дозволяє все)
+                // Політика для розробки (дозволяє все, крім wildcard origin)
                 options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    policy.SetIsOriginAllowed(origin => true) // Дозволяє будь-який origin, але не використовує '*'
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .AllowCredentials(); // КРИТИЧНО ДЛЯ httpOnly Cookies!
                 });
 
                 // Політика для продакшену (сувора) - як показувала викладачка

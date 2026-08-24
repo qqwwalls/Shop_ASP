@@ -34,4 +34,6 @@ public class User : BaseEntity
     public DateTime? ResetPasswordTokenExpires { get; set; }
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    
+    public ICollection<Order> Orders { get; set; } = new List<Order>();
 }

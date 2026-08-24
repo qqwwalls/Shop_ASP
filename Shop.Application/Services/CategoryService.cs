@@ -43,9 +43,21 @@ public class CategoryService : ICategoryService
 
     public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)
     {
+        var cacheKey = $"Category_{id}";
+        var cachedCategory = await _cachingService.GetAsync<CategoryReadDTO>(cacheKey);
+        
+        if (cachedCategory != null)
+        {
+            return cachedCategory;
+        }
+
         var category = await _repository.GetCategoryByIdAsync(id);
         if (category == null) return null;
-        return _mapper.Map<CategoryReadDTO>(category);
+        
+        var dto = _mapper.Map<CategoryReadDTO>(category);
+        await _cachingService.SetAsync(cacheKey, dto);
+        
+        return dto;
     }
 
     //TODO: додати Automapper

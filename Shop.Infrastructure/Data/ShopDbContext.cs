@@ -16,6 +16,8 @@ namespace Shop.Infrastructure.Data
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetail> OrderDetails { get; set; }
 
         public override int SaveChanges()
         {
@@ -82,6 +84,29 @@ namespace Shop.Infrastructure.Data
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u => u.Email).IsUnique();
+            });
+
+            // --- Order ---
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasOne(o => o.User)
+                      .WithMany(u => u.Orders)
+                      .HasForeignKey(o => o.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // --- OrderDetail ---
+            modelBuilder.Entity<OrderDetail>(entity =>
+            {
+                entity.HasOne(od => od.Order)
+                      .WithMany(o => o.OrderDetails)
+                      .HasForeignKey(od => od.OrderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(od => od.Product)
+                      .WithMany() // Assuming Product doesn't have a collection of OrderDetails for now
+                      .HasForeignKey(od => od.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

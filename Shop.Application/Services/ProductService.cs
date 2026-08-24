@@ -12,30 +12,57 @@ namespace Shop.Application.Services
     {
         private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
+        private readonly ICachingService _cachingService;
+        private const string CacheKey = "Products";
 
-        public ProductService(IProductRepository productRepository, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper, ICachingService cachingService)
         {
             _productRepository = productRepository;
             _mapper = mapper;
+            _cachingService = cachingService;
         }
 
         public List<ProductDto> GetAllProducts()
         {
+            var cachedProducts = _cachingService.GetAsync<List<ProductDto>>(CacheKey).GetAwaiter().GetResult();
+            if (cachedProducts != null)
+            {
+                return cachedProducts;
+            }
+
             var products = _productRepository.GetAllProducts().ToList();
-            return _mapper.Map<List<ProductDto>>(products);
+            var dtos = _mapper.Map<List<ProductDto>>(products);
+            
+            _cachingService.SetAsync(CacheKey, dtos).GetAwaiter().GetResult();
+            return dtos;
         }
 
         public ProductDto? GetProductById(int id)
         {
+            var cacheKey = $"Product_{id}";
+            var cachedProduct = _cachingService.GetAsync<ProductDto>(cacheKey).GetAwaiter().GetResult();
+            
+            if (cachedProduct != null)
+            {
+                return cachedProduct;
+            }
+
             var product = _productRepository.GetProductById(id);
             if (product == null) return null;
-            return _mapper.Map<ProductDto>(product);
+            
+            var dto = _mapper.Map<ProductDto>(product);
+            _cachingService.SetAsync(cacheKey, dto).GetAwaiter().GetResult();
+            
+            return dto;
         }
 
         public ProductDto CreateProduct(CreateProductDto dto)
         {
             var product = _mapper.Map<Product>(dto);
             var createdProduct = _productRepository.CreateProduct(product);
+            
+            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            
             return _mapper.Map<ProductDto>(createdProduct);
         }
 
@@ -47,6 +74,8 @@ namespace Shop.Application.Services
             _mapper.Map(dto, product);
             _productRepository.UpdateProduct(product);
             
+            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            
             return _mapper.Map<ProductDto>(product);
         }
 
@@ -56,6 +85,9 @@ namespace Shop.Application.Services
             if (product == null) return false;
 
             _productRepository.DeleteProduct(product);
+            
+            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            
             return true;
         }
     }

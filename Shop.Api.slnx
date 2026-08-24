@@ -3,4 +3,5 @@
   <Project Path="Shop.Domain/Shop.Domain.csproj" />
   <Project Path="Shop.Application/Shop.Application.csproj" />
   <Project Path="Shop.Infrastructure/Shop.Infrastructure.csproj" />
+  <Project Path="RabbitMqReader/RabbitMqReader.csproj" />
 </Solution>
