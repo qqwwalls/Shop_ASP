@@ -6,9 +6,6 @@ namespace Shop.Application.DTOs.OrderDTOs
 {
     public class OrderCreateDTO
     {
-        [Required]
-        public Guid UserId { get; set; }
-
         public string Status { get; set; } = "New";
 
         public bool Paid { get; set; } = false;
