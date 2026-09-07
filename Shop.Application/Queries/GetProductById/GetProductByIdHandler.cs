@@ -1,6 +1,7 @@
+using AutoMapper;
 using MediatR;
 using Shop.Application.DTOs;
-using Shop.Application.Interfaces.Services;
+using Shop.Application.Interfaces.Repository;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,20 +9,22 @@ namespace Shop.Application.Queries.GetProductById
 {
     public class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery, ProductDto?>
     {
-        private readonly IProductService _productService;
+        private readonly IProductRepository _repository;
+        private readonly IMapper _mapper;
 
-        public GetProductByIdHandler(IProductService productService)
+        public GetProductByIdHandler(IProductRepository repository, IMapper mapper)
         {
-            _productService = productService;
+            _repository = repository;
+            _mapper = mapper;
         }
 
-        public Task<ProductDto?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
+        public async Task<ProductDto?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            // Використовуємо існуючий сервіс для отримання продукту
-            // Якщо у майбутньому ви захочете повністю відмовитись від IProductService,
-            // тут можна напряму викликати IProductRepository та AutoMapper.
-            var product = _productService.GetProductById(request.Id);
-            return Task.FromResult(product);
+            // Отримуємо сутність з БД через репозиторій (як на скріншоті)
+            var entity = _repository.GetProductById(request.Id);
+            
+            // Мапимо в DTO і повертаємо
+            return await Task.FromResult(_mapper.Map<ProductDto?>(entity));
         }
     }
 }
