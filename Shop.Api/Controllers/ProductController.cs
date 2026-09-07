@@ -48,9 +48,9 @@ namespace Shop.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
-            var success = _productService.DeleteProduct(id);
+            var success = await _mediator.Send(new Shop.Application.Commands.DeleteProduct.DeleteProductCommand(id));
             if (!success)
             {
                 return NotFound();
