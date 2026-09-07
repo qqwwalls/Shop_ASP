@@ -8,11 +8,11 @@ namespace Shop.Application.DTOs.OrderDTOs
         public int ProductId { get; set; }
 
         [Required]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than zero")]
-        public decimal Price { get; set; }
+        [Range(1, int.MaxValue)]
+        public int Qty { get; set; }
 
         [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Count must be at least 1")]
-        public int Count { get; set; }
+        [Range(0.01, double.MaxValue)]
+        public decimal Price { get; set; }
     }
 }

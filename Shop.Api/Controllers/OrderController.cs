@@ -1,10 +1,8 @@
-using System;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.DTOs.OrderDTOs;
 using Shop.Application.Interfaces.Services;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace Shop.Api.Controllers
 {
@@ -20,7 +18,6 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize] // Тільки для авторизованих користувачів
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDTO orderDto)
         {
             if (!ModelState.IsValid)
@@ -28,25 +25,10 @@ namespace Shop.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Дістаємо ID користувача безпосередньо з його JWT токена
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
-            {
-                return Unauthorized(new { message = "Invalid token or user ID missing." });
-            }
+            // Відправляємо замовлення у RabbitMQ для подальшого збереження в MongoDB
+            await _queueService.PublishAsync("Orders", orderDto);
 
-            // Створюємо анонімний об'єкт, який поєднує UserId з токена та дані з фронтенду
-            var orderMessage = new 
-            {
-                UserId = userId,
-                Status = orderDto.Status,
-                Paid = orderDto.Paid,
-                Items = orderDto.Items
-            };
-
-            await _queueService.PublishAsync("Orders", orderMessage);
-
-            return Ok(new { message = "Order successfully sent to processing queue." });
+            return Ok(new { message = "Order sent to RabbitMQ (for MongoDB processing)." });
         }
     }
 }

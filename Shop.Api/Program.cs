@@ -84,18 +84,29 @@ namespace Shop.Api
             // Register CachingService
             builder.Services.AddSingleton<Shop.Application.Interfaces.Services.ICachingService, Shop.Infrastructure.Services.RedisCachingService>();
 
-            // ================= RabbitMQ =================
+            // ================= RabbitMQ & MongoDB =================
             builder.Services.Configure<Shop.Infrastructure.Configuration.RabbitMqSettings>(
                 builder.Configuration.GetSection("RabbitMq")
             );
+            builder.Services.Configure<Shop.Infrastructure.Configuration.MongoDbSettings>(
+                builder.Configuration.GetSection("MongoDb")
+            );
             builder.Services.AddScoped<Shop.Application.Interfaces.Services.IQueueService, Shop.Infrastructure.Services.RabbitMqService>();
+            
+            // Залишаємо старий читач для Users (якщо треба)
             builder.Services.AddHostedService<Shop.Api.Services.RabbitMqReaderService>();
+            
+            // Реєструємо новий читач для Orders (зберігає в MongoDB)
+            builder.Services.AddHostedService<Shop.Api.Services.RabbitMqMongoOrderConsumer>();
 
             // ================= AutoMapper =================
             builder.Services.AddAutoMapper(
                 _ => { },
                 typeof(Shop.Application.Mappings.CategoryProfile).Assembly
             );
+
+            // ================= MediatR =================
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Shop.Application.Queries.GetProductById.GetProductByIdQuery).Assembly));
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

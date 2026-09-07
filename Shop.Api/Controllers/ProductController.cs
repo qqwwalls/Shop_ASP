@@ -1,7 +1,10 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Shop.Application.Interfaces.Services;
 using Shop.Application.DTOs;
+using Shop.Application.Interfaces.Services;
+using Shop.Application.Queries.GetProductById;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Shop.Api.Controllers
 {
@@ -10,10 +13,12 @@ namespace Shop.Api.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IMediator _mediator;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, IMediator mediator)
         {
             _productService = productService;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -31,9 +36,10 @@ namespace Shop.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetProductById(int id)
+        public async Task<IActionResult> GetProductById(int id)
         {
-            var product = _productService.GetProductById(id);
+            // Використання патерну CQRS через MediatR
+            var product = await _mediator.Send(new GetProductByIdQuery(id));
             if (product == null)
             {
                 return NotFound();
