@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Shop.Application.DTOs.OrderDTOs;
 using Shop.Application.Interfaces.Services;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Text.Json;
 
@@ -18,15 +19,14 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDTO orderDto)
+        public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDTO orderDto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Відправляємо замовлення у RabbitMQ для подальшого збереження в MongoDB
-            await _queueService.PublishAsync("Orders", orderDto);
+            await _queueService.PublishAsync("Orders", orderDto, cancellationToken);
 
             return Ok(new { message = "Order sent to RabbitMQ (for MongoDB processing)." });
         }

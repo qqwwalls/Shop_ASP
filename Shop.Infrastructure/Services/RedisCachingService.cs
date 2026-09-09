@@ -15,9 +15,9 @@ public class RedisCachingService : ICachingService
         _distributedCache = distributedCache;
     }
 
-    public async Task<T?> GetAsync<T>(string key)
+    public async Task<T?> GetAsync<T>(string key, System.Threading.CancellationToken cancellationToken = default)
     {
-        var cachedString = await _distributedCache.GetStringAsync(key);
+        var cachedString = await _distributedCache.GetStringAsync(key, cancellationToken);
         if (string.IsNullOrEmpty(cachedString))
         {
             return default;
@@ -26,12 +26,12 @@ public class RedisCachingService : ICachingService
         return JsonSerializer.Deserialize<T>(cachedString);
     }
 
-    public async Task RemoveAsync(string key)
+    public async Task RemoveAsync(string key, System.Threading.CancellationToken cancellationToken = default)
     {
-        await _distributedCache.RemoveAsync(key);
+        await _distributedCache.RemoveAsync(key, cancellationToken);
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan? exp = null)
+    public async Task SetAsync<T>(string key, T value, TimeSpan? exp = null, System.Threading.CancellationToken cancellationToken = default)
     {
         var options = new DistributedCacheEntryOptions
         {
@@ -39,6 +39,6 @@ public class RedisCachingService : ICachingService
         };
 
         var jsonString = JsonSerializer.Serialize(value);
-        await _distributedCache.SetStringAsync(key, jsonString, options);
+        await _distributedCache.SetStringAsync(key, jsonString, options, cancellationToken);
     }
 }

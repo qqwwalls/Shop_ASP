@@ -22,24 +22,23 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddProduct([FromBody] CreateProductDto dto)
+        public async Task<IActionResult> AddProduct([FromBody] CreateProductDto dto, System.Threading.CancellationToken cancellationToken)
         {
-            var product = _productService.CreateProduct(dto);
+            var product = await _productService.CreateProductAsync(dto, cancellationToken);
             return Ok(product);
         }
 
         [HttpGet]
-        public IActionResult GetActiveProducts()
+        public async Task<IActionResult> GetActiveProducts(System.Threading.CancellationToken cancellationToken)
         {
-            var products = _productService.GetAllProducts();
+            var products = await _productService.GetAllProductsAsync(cancellationToken);
             return Ok(products);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(int id)
+        public async Task<IActionResult> GetProductById(int id, System.Threading.CancellationToken cancellationToken)
         {
-            // Використання патерну CQRS через MediatR
-            var product = await _mediator.Send(new GetProductByIdQuery(id));
+            var product = await _mediator.Send(new GetProductByIdQuery(id), cancellationToken);
             if (product == null)
             {
                 return NotFound();
@@ -48,9 +47,9 @@ namespace Shop.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id, System.Threading.CancellationToken cancellationToken)
         {
-            var success = await _mediator.Send(new Shop.Application.Commands.DeleteProduct.DeleteProductCommand(id));
+            var success = await _mediator.Send(new Shop.Application.Commands.DeleteProduct.DeleteProductCommand(id), cancellationToken);
             if (!success)
             {
                 return NotFound();
@@ -59,9 +58,9 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(int id, [FromBody] UpdateProductDto dto)
+        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductDto dto, System.Threading.CancellationToken cancellationToken)
         {
-            var product = _productService.UpdateProduct(id, dto);
+            var product = await _productService.UpdateProductAsync(id, dto, cancellationToken);
             if (product == null)
             {
                 return NotFound();

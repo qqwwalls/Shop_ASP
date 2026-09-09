@@ -21,14 +21,14 @@ namespace Shop.Application.Commands.DeleteProduct
         {
             _logger.LogInformation("💥 [CQRS] DeleteProductHandler was triggered to delete Product ID: {Id}", request.Id);
             
-            var entity = _repository.GetProductById(request.Id);
+            var entity = await _repository.GetProductByIdAsync(request.Id, cancellationToken);
             if (entity == null)
             {
                 return false;
             }
 
-            _repository.DeleteProduct(entity);
-            return await Task.FromResult(true);
+            await _repository.DeleteProductAsync(entity, cancellationToken);
+            return true;
         }
     }
 }

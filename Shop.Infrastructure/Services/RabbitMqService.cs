@@ -4,6 +4,7 @@ using Shop.Infrastructure.Configuration;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Shop.Infrastructure.Services;
@@ -17,7 +18,7 @@ public class RabbitMqService : IQueueService
         _rabbitMqSettings = options.Value;
     }
 
-    public async Task PublishAsync<T>(string queue, T message)
+    public async Task PublishAsync<T>(string queue, T message, CancellationToken cancellationToken = default)
     {
         var factory = new ConnectionFactory()
         {
@@ -25,9 +26,9 @@ public class RabbitMqService : IQueueService
             Port = _rabbitMqSettings.Port
         };
 
-        await using var connection = await factory.CreateConnectionAsync();
+        await using var connection = await factory.CreateConnectionAsync(cancellationToken);
         
-        await using var channel = await connection.CreateChannelAsync();
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
         
         await channel.QueueDeclareAsync(
             queue: queue,
@@ -51,7 +52,8 @@ public class RabbitMqService : IQueueService
              routingKey: queue,
              mandatory: false,
              basicProperties: properties,
-             body: body
+             body: body,
+             cancellationToken: cancellationToken
         );
     }
 }

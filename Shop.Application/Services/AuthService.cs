@@ -10,15 +10,15 @@ namespace Shop.Application.Services
 {
     public class AuthService(IMapper _mapper, IAuthRepository _repository, IHashHelper _hashHelper, IJWTService _jwtService) : IAuthService
     {
-        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> RegisterAsync(UserCreateDTO dto)
+        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> RegisterAsync(UserCreateDTO dto, System.Threading.CancellationToken cancellationToken = default)
         {
-            var isExist = await _repository.IsExistEmailAsync(dto.Email);
+            var isExist = await _repository.IsExistEmailAsync(dto.Email, cancellationToken);
             if (!isExist)
             {
                 var hash = _hashHelper.Hash(dto.Password);
                 var user = _mapper.Map<User>(dto);
                 var token = _jwtService.GenerateAccessToken(_mapper.Map<UserLoginDTO>(user), user.Role.ToString());
-                var registerUser = await _repository.RegisterUserAsync(user, hash);
+                var registerUser = await _repository.RegisterUserAsync(user, hash, cancellationToken);
                 
                 if (registerUser != null)
                 {
@@ -30,7 +30,7 @@ namespace Shop.Application.Services
                         IsRevoked = false,
                         UserId = registerUser.Id
                     };
-                    await _repository.SaveRefreshTokenAsync(refreshTokenEntity);
+                    await _repository.SaveRefreshTokenAsync(refreshTokenEntity, cancellationToken);
 
                     return (_mapper.Map<UserReadDTO>(registerUser), token, refreshTokenStr);
                 }
@@ -38,9 +38,9 @@ namespace Shop.Application.Services
             return (null, null, null);
         }
 
-        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> RegisterAdminAsync(UserCreateDTO dto)
+        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> RegisterAdminAsync(UserCreateDTO dto, System.Threading.CancellationToken cancellationToken = default)
         {
-            var isExist = await _repository.IsExistEmailAsync(dto.Email);
+            var isExist = await _repository.IsExistEmailAsync(dto.Email, cancellationToken);
             if (!isExist)
             {
                 var hash = _hashHelper.Hash(dto.Password);
@@ -48,7 +48,7 @@ namespace Shop.Application.Services
                 user.Role = Shop.Domain.Enums.UserRole.Admin; // Set role to Admin
                 
                 var token = _jwtService.GenerateAccessToken(_mapper.Map<UserLoginDTO>(user), user.Role.ToString());
-                var registerUser = await _repository.RegisterUserAsync(user, hash);
+                var registerUser = await _repository.RegisterUserAsync(user, hash, cancellationToken);
                 
                 if (registerUser != null)
                 {
@@ -60,7 +60,7 @@ namespace Shop.Application.Services
                         IsRevoked = false,
                         UserId = registerUser.Id
                     };
-                    await _repository.SaveRefreshTokenAsync(refreshTokenEntity);
+                    await _repository.SaveRefreshTokenAsync(refreshTokenEntity, cancellationToken);
 
                     return (_mapper.Map<UserReadDTO>(registerUser), token, refreshTokenStr);
                 }
@@ -68,9 +68,9 @@ namespace Shop.Application.Services
             return (null, null, null);
         }
 
-        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> LoginAsync(UserLoginDTO dto)
+        public async Task<(UserReadDTO? User, string? AccessToken, string? RefreshToken)> LoginAsync(UserLoginDTO dto, System.Threading.CancellationToken cancellationToken = default)
         {
-            var user = await _repository.GetUserByEmailAsync(dto.Email);
+            var user = await _repository.GetUserByEmailAsync(dto.Email, cancellationToken);
             if (user != null && _hashHelper.IsValidPassword(dto.Password, user.PasswordHash))
             {
                 var token = _jwtService.GenerateAccessToken(dto, user.Role.ToString());
@@ -82,16 +82,16 @@ namespace Shop.Application.Services
                     IsRevoked = false,
                     UserId = user.Id
                 };
-                await _repository.SaveRefreshTokenAsync(refreshTokenEntity);
+                await _repository.SaveRefreshTokenAsync(refreshTokenEntity, cancellationToken);
 
                 return (_mapper.Map<UserReadDTO>(user), token, refreshTokenStr);
             }
             return (null, null, null);
         }
 
-        public async Task<string?> RefreshAccessTokenAsync(string refreshToken)
+        public async Task<string?> RefreshAccessTokenAsync(string refreshToken, System.Threading.CancellationToken cancellationToken = default)
         {
-            var tokenEntity = await _repository.GetRefreshTokenAsync(refreshToken);
+            var tokenEntity = await _repository.GetRefreshTokenAsync(refreshToken, cancellationToken);
 
             if (tokenEntity == null || tokenEntity.IsRevoked || tokenEntity.ExpiresAt <= System.DateTime.UtcNow)
             {
@@ -107,9 +107,9 @@ namespace Shop.Application.Services
             return _jwtService.GenerateAccessToken(loginDto, tokenEntity.User.Role.ToString());
         }
 
-        public async Task<string?> GeneratePasswordResetTokenAsync(ForgotPasswordDTO dto)
+        public async Task<string?> GeneratePasswordResetTokenAsync(ForgotPasswordDTO dto, System.Threading.CancellationToken cancellationToken = default)
         {
-            var user = await _repository.GetUserByEmailAsync(dto.Email);
+            var user = await _repository.GetUserByEmailAsync(dto.Email, cancellationToken);
             if (user == null)
             {
                 return null;
@@ -122,14 +122,14 @@ namespace Shop.Application.Services
             user.ResetPasswordToken = token;
             user.ResetPasswordTokenExpires = System.DateTime.UtcNow.AddHours(1);
 
-            await _repository.UpdateUserAsync(user);
+            await _repository.UpdateUserAsync(user, cancellationToken);
 
             return token;
         }
 
-        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO dto)
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDTO dto, System.Threading.CancellationToken cancellationToken = default)
         {
-            var user = await _repository.GetUserByResetTokenAsync(dto.Token);
+            var user = await _repository.GetUserByResetTokenAsync(dto.Token, cancellationToken);
 
             if (user == null || user.ResetPasswordTokenExpires <= System.DateTime.UtcNow)
             {
@@ -140,7 +140,7 @@ namespace Shop.Application.Services
             user.ResetPasswordToken = null;
             user.ResetPasswordTokenExpires = null;
 
-            await _repository.UpdateUserAsync(user);
+            await _repository.UpdateUserAsync(user, cancellationToken);
 
             return true;
         }

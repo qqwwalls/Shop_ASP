@@ -23,22 +23,22 @@ namespace Shop.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var categories = await _categoryService.GetAllCategoriesAsync();
+            var categories = await _categoryService.GetAllCategoriesAsync(cancellationToken);
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id)
+        public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id, CancellationToken cancellationToken)
         {
-            var dto = await _categoryService.GetCategoryByIdAsync(id);
+            var dto = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
             if (dto == null) return NotFound();
             return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest request)
+        public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest request, CancellationToken cancellationToken)
         {
             var imageUrl = string.Empty;
             if (request.Image != null)
@@ -54,7 +54,7 @@ namespace Shop.Api.Controllers
                 ParentId = request.ParentId,
             };
 
-            var id = await _categoryService.CreateCategoryAsync(createDto);
+            var id = await _categoryService.CreateCategoryAsync(createDto, cancellationToken);
 
             return CreatedAtAction(
                 nameof(GetCategoryById),
@@ -62,28 +62,23 @@ namespace Shop.Api.Controllers
                 new { id });
         }
 
-        // ================= ТЕСТОВИЙ МАРШРУТ ДЛЯ ПЕРЕВІРКИ ПОМИЛОК =================
         [HttpGet("test-error")]
-        public IActionResult TestError()
+        public IActionResult TestError(CancellationToken cancellationToken)
         {
-            // Ця помилка буде перехоплена нашим новим глобальним ErrorController
             throw new Exception("Це тестова помилка для перевірки глобального обробника!");
         }
 
-        // ================= ЗАВДАННЯ ПО REDIS (ВІД ВИКЛАДАЧА) =================
         [HttpGet("redis-test")]
-        public async Task<IActionResult> TestRedisAssignment()
+        public async Task<IActionResult> TestRedisAssignment(CancellationToken cancellationToken)
         {
             var db = _redis.GetDatabase();
             var listKey = new StackExchange.Redis.RedisKey("shop_categories");
             
-            // 0. Очищаємо список перед тестом, щоб не накопичувати дублікати
             await db.KeyDeleteAsync(listKey);
 
             var outputLogs = new System.Collections.Generic.List<string>();
             outputLogs.Add("--- ПОЧАТОК ВИКОНАННЯ ЗАВДАННЯ ---");
 
-            // 1. Створіть список на 5 категорій товарів
             await db.ListRightPushAsync(listKey, "Електроніка");
             await db.ListRightPushAsync(listKey, "Одяг");
             await db.ListRightPushAsync(listKey, "Дім");
@@ -91,7 +86,6 @@ namespace Shop.Api.Controllers
             await db.ListRightPushAsync(listKey, "Книги");
             outputLogs.Add("1. Створено список з 5 категорій (RPUSH)");
 
-            // 2. Роздрукуйте їх у консоль
             var items = await db.ListRangeAsync(listKey, 0, -1);
             outputLogs.Add("2. Друк категорій у консоль (LRANGE 0 -1):");
             foreach (var item in items)
@@ -100,17 +94,14 @@ namespace Shop.Api.Controllers
                 Console.WriteLine($"[REDIS TEST] Категорія: {item}");
             }
 
-            // 3. Виведіть довжину списку
             var lengthBefore = await db.ListLengthAsync(listKey);
             outputLogs.Add($"3. Довжина списку (LLEN): {lengthBefore}");
             Console.WriteLine($"[REDIS TEST] Довжина списку: {lengthBefore}");
 
-            // 4. Видаліть третій товар у списку ("Дім")
             await db.ListRemoveAsync(listKey, "Дім", 1);
             outputLogs.Add("4. Видалено третій товар у списку - 'Дім' (LREM 1 'Дім')");
             Console.WriteLine($"[REDIS TEST] Видалено товар 'Дім'");
 
-            // 5. Знову роздрукуйте довжину списку
             var lengthAfter = await db.ListLengthAsync(listKey);
             outputLogs.Add($"5. Знову довжина списку (LLEN): {lengthAfter}");
             Console.WriteLine($"[REDIS TEST] Нова довжина списку: {lengthAfter}");

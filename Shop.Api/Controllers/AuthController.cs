@@ -23,14 +23,14 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserCreateDTO dto)
+        public async Task<IActionResult> Register([FromBody] UserCreateDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _authService.RegisterAsync(dto);
+            var result = await _authService.RegisterAsync(dto, cancellationToken);
 
             if (result.User == null)
             {
@@ -47,14 +47,14 @@ namespace Shop.Api.Controllers
 
         [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
         [HttpPost("register-admin")]
-        public async Task<IActionResult> RegisterAdmin([FromBody] UserCreateDTO dto)
+        public async Task<IActionResult> RegisterAdmin([FromBody] UserCreateDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _authService.RegisterAdminAsync(dto);
+            var result = await _authService.RegisterAdminAsync(dto, cancellationToken);
 
             if (result.User == null)
             {
@@ -70,14 +70,14 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginDTO dto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _authService.LoginAsync(dto);
+            var result = await _authService.LoginAsync(dto, cancellationToken);
 
             if (result.User == null)
             {
@@ -93,7 +93,7 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh()
+        public async Task<IActionResult> Refresh(CancellationToken cancellationToken)
         {
             var refreshToken = Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(refreshToken))
@@ -101,7 +101,7 @@ namespace Shop.Api.Controllers
                 return Unauthorized("No refresh token provided.");
             }
 
-            var newAccessToken = await _authService.RefreshAccessTokenAsync(refreshToken);
+            var newAccessToken = await _authService.RefreshAccessTokenAsync(refreshToken, cancellationToken);
 
             if (string.IsNullOrEmpty(newAccessToken))
             {
@@ -112,14 +112,14 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var token = await _authService.GeneratePasswordResetTokenAsync(dto);
+            var token = await _authService.GeneratePasswordResetTokenAsync(dto, cancellationToken);
 
             if (token == null)
             {
@@ -135,14 +135,14 @@ namespace Shop.Api.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var success = await _authService.ResetPasswordAsync(dto);
+            var success = await _authService.ResetPasswordAsync(dto, cancellationToken);
 
             if (!success)
             {

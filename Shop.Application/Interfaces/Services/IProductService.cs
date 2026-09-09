@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Shop.Application.DTOs;
 
 namespace Shop.Application.Interfaces.Services
 {
     public interface IProductService
     {
-        List<ProductDto> GetAllProducts();
-        ProductDto? GetProductById(int id);
-        ProductDto CreateProduct(CreateProductDto dto);
-        ProductDto? UpdateProduct(int id, UpdateProductDto dto);
-        bool DeleteProduct(int id);
+        Task<List<ProductDto>> GetAllProductsAsync(System.Threading.CancellationToken cancellationToken = default);
+        Task<ProductDto?> GetProductByIdAsync(int id, System.Threading.CancellationToken cancellationToken = default);
+        Task<ProductDto> CreateProductAsync(CreateProductDto dto, System.Threading.CancellationToken cancellationToken = default);
+        Task<ProductDto?> UpdateProductAsync(int id, UpdateProductDto dto, System.Threading.CancellationToken cancellationToken = default);
+        Task<bool> DeleteProductAsync(int id, System.Threading.CancellationToken cancellationToken = default);
     }
 }

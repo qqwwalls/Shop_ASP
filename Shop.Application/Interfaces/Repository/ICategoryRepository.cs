@@ -11,7 +11,7 @@ namespace Shop.Application.Interfaces.Repository
         Category CreateCategory(Category category);
         void UpdateCategory(Category category);
         void DeleteCategory(Category category);
-        Task<int?> AddCategoryAsync(Category category);
-        Task<Category?> GetCategoryByIdAsync(int id);
+        Task<int?> AddCategoryAsync(Category category, System.Threading.CancellationToken cancellationToken = default);
+        Task<Category?> GetCategoryByIdAsync(int id, System.Threading.CancellationToken cancellationToken = default);
     }
 }

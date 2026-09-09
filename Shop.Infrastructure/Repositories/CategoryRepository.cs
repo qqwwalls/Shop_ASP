@@ -10,10 +10,10 @@ namespace Shop.Infrastructure.Repositories;
 
 public class CategoryRepository(ShopDbContext _context) : ICategoryRepository
 {
-    public async Task<int?> AddCategoryAsync(Category category)
+    public async Task<int?> AddCategoryAsync(Category category, System.Threading.CancellationToken cancellationToken = default)
     {
-        await _context.Categories.AddAsync(category);
-        await _context.SaveChangesAsync();
+        await _context.Categories.AddAsync(category, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
         return category.Id;
     }
 
@@ -27,9 +27,9 @@ public class CategoryRepository(ShopDbContext _context) : ICategoryRepository
             return _context.Categories.FirstOrDefault(c => c.Id == id);
         }
 
-        public async Task<Category?> GetCategoryByIdAsync(int id)
+        public async Task<Category?> GetCategoryByIdAsync(int id, System.Threading.CancellationToken cancellationToken = default)
         {
-            return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            return await _context.Categories.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
         public Category CreateCategory(Category category)

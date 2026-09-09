@@ -14,7 +14,7 @@ public class MemoryCachingService : ICachingService
         _memoryCache = memoryCache;
     }
 
-    public Task<T?> GetAsync<T>(string key)
+    public Task<T?> GetAsync<T>(string key, System.Threading.CancellationToken cancellationToken = default)
     {
         if (_memoryCache.TryGetValue(key, out T value))
         {
@@ -24,13 +24,13 @@ public class MemoryCachingService : ICachingService
         return Task.FromResult<T?>(default);
     }
 
-    public Task RemoveAsync(string key)
+    public Task RemoveAsync(string key, System.Threading.CancellationToken cancellationToken = default)
     {
         _memoryCache.Remove(key);
         return Task.CompletedTask;
     }
 
-    public Task SetAsync<T>(string key, T value, TimeSpan? exp = null)
+    public Task SetAsync<T>(string key, T value, TimeSpan? exp = null, System.Threading.CancellationToken cancellationToken = default)
     {
         var options = new MemoryCacheEntryOptions
         {

@@ -5,10 +5,10 @@ namespace Shop.Application.Interfaces.Repository
 {
     public interface IProductRepository
     {
-        IEnumerable<Product> GetAllProducts();
-        Product? GetProductById(int id);
-        Product CreateProduct(Product product);
-        void UpdateProduct(Product product);
-        void DeleteProduct(Product product);
+        Task<IEnumerable<Product>> GetAllProductsAsync(System.Threading.CancellationToken cancellationToken = default);
+        Task<Product?> GetProductByIdAsync(int id, System.Threading.CancellationToken cancellationToken = default);
+        Task<Product> CreateProductAsync(Product product, System.Threading.CancellationToken cancellationToken = default);
+        Task UpdateProductAsync(Product product, System.Threading.CancellationToken cancellationToken = default);
+        Task DeleteProductAsync(Product product, System.Threading.CancellationToken cancellationToken = default);
     }
 }

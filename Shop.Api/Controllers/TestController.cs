@@ -17,10 +17,10 @@ namespace Shop.Api.Controllers
         }
 
         [HttpGet("without")]
-        public async Task<IActionResult> TestWithoutCT()
+        public async Task<IActionResult> TestWithoutCT(CancellationToken token)
         {
             _logger.LogInformation("start test withoutCT");
-            await Task.Delay(10000); // Збільшив час до 10 сек, щоб ви встигли скасувати запит
+            await Task.Delay(10000); 
             _logger.LogInformation("action 1");
             await Task.Delay(2000);
             _logger.LogInformation("action 2");
@@ -34,8 +34,8 @@ namespace Shop.Api.Controllers
         [HttpGet("with")]
         public async Task<IActionResult> TestWithCT(CancellationToken token)
         {
-            _logger.LogInformation("start test withCT"); // Виправив одруківку викладача
-            await Task.Delay(10000, token); // Збільшив час до 10 сек, щоб ви встигли скасувати запит
+            _logger.LogInformation("start test withCT"); 
+            await Task.Delay(10000, token); 
             _logger.LogInformation("action 1");
             await Task.Delay(2000, token);
             _logger.LogInformation("action 2");

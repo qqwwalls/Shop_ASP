@@ -25,11 +25,9 @@ namespace Shop.Application.Queries.GetProductById
         {
             _logger.LogInformation("🚀 [CQRS] GetProductByIdHandler was triggered for Product ID: {Id}", request.Id);
 
-            // Отримуємо сутність з БД через репозиторій (як на скріншоті)
-            var entity = _repository.GetProductById(request.Id);
+            var entity = await _repository.GetProductByIdAsync(request.Id, cancellationToken);
             
-            // Мапимо в DTO і повертаємо
-            return await Task.FromResult(_mapper.Map<ProductDto?>(entity));
+            return _mapper.Map<ProductDto?>(entity);
         }
     }
 }

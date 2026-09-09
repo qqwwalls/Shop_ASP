@@ -4,17 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace Shop.Api.Controllers
 {
     [ApiController]
-    [ApiExplorerSettings(IgnoreApi = true)] // Щоб цей контролер не відображався у Swagger
+    [ApiExplorerSettings(IgnoreApi = true)] 
     public class ErrorController : ControllerBase
     {
         [Route("/error")]
-        public IActionResult HandleError()
+        public IActionResult HandleError(System.Threading.CancellationToken cancellationToken)
         {
             var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = exceptionHandlerFeature?.Error;
-
-            // Логування помилки можна додати тут (якщо потрібно)
-            // logger.LogError(exception, "Global error caught");
 
             return Problem(
                 detail: exception?.Message,

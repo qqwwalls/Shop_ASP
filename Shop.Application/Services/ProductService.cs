@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
 using Shop.Domain.Models;
@@ -22,71 +24,71 @@ namespace Shop.Application.Services
             _cachingService = cachingService;
         }
 
-        public List<ProductDto> GetAllProducts()
+        public async Task<List<ProductDto>> GetAllProductsAsync(CancellationToken cancellationToken = default)
         {
-            var cachedProducts = _cachingService.GetAsync<List<ProductDto>>(CacheKey).GetAwaiter().GetResult();
+            var cachedProducts = await _cachingService.GetAsync<List<ProductDto>>(CacheKey, cancellationToken);
             if (cachedProducts != null)
             {
                 return cachedProducts;
             }
 
-            var products = _productRepository.GetAllProducts().ToList();
-            var dtos = _mapper.Map<List<ProductDto>>(products);
+            var products = await _productRepository.GetAllProductsAsync(cancellationToken);
+            var dtos = _mapper.Map<List<ProductDto>>(products.ToList());
             
-            _cachingService.SetAsync(CacheKey, dtos).GetAwaiter().GetResult();
+            await _cachingService.SetAsync(CacheKey, dtos, cancellationToken: cancellationToken);
             return dtos;
         }
 
-        public ProductDto? GetProductById(int id)
+        public async Task<ProductDto?> GetProductByIdAsync(int id, CancellationToken cancellationToken = default)
         {
             var cacheKey = $"Product_{id}";
-            var cachedProduct = _cachingService.GetAsync<ProductDto>(cacheKey).GetAwaiter().GetResult();
+            var cachedProduct = await _cachingService.GetAsync<ProductDto>(cacheKey, cancellationToken);
             
             if (cachedProduct != null)
             {
                 return cachedProduct;
             }
 
-            var product = _productRepository.GetProductById(id);
+            var product = await _productRepository.GetProductByIdAsync(id, cancellationToken);
             if (product == null) return null;
             
             var dto = _mapper.Map<ProductDto>(product);
-            _cachingService.SetAsync(cacheKey, dto).GetAwaiter().GetResult();
+            await _cachingService.SetAsync(cacheKey, dto, cancellationToken: cancellationToken);
             
             return dto;
         }
 
-        public ProductDto CreateProduct(CreateProductDto dto)
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto dto, CancellationToken cancellationToken = default)
         {
             var product = _mapper.Map<Product>(dto);
-            var createdProduct = _productRepository.CreateProduct(product);
+            var createdProduct = await _productRepository.CreateProductAsync(product, cancellationToken);
             
-            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            await _cachingService.RemoveAsync(CacheKey, cancellationToken);
             
             return _mapper.Map<ProductDto>(createdProduct);
         }
 
-        public ProductDto? UpdateProduct(int id, UpdateProductDto dto)
+        public async Task<ProductDto?> UpdateProductAsync(int id, UpdateProductDto dto, CancellationToken cancellationToken = default)
         {
-            var product = _productRepository.GetProductById(id);
+            var product = await _productRepository.GetProductByIdAsync(id, cancellationToken);
             if (product == null) return null;
 
             _mapper.Map(dto, product);
-            _productRepository.UpdateProduct(product);
+            await _productRepository.UpdateProductAsync(product, cancellationToken);
             
-            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            await _cachingService.RemoveAsync(CacheKey, cancellationToken);
             
             return _mapper.Map<ProductDto>(product);
         }
 
-        public bool DeleteProduct(int id)
+        public async Task<bool> DeleteProductAsync(int id, CancellationToken cancellationToken = default)
         {
-            var product = _productRepository.GetProductById(id);
+            var product = await _productRepository.GetProductByIdAsync(id, cancellationToken);
             if (product == null) return false;
 
-            _productRepository.DeleteProduct(product);
+            await _productRepository.DeleteProductAsync(product, cancellationToken);
             
-            _cachingService.RemoveAsync(CacheKey).GetAwaiter().GetResult();
+            await _cachingService.RemoveAsync(CacheKey, cancellationToken);
             
             return true;
         }

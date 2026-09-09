@@ -23,10 +23,10 @@ public class CategoryService : ICategoryService
         _cachingService = cachingService;
     }
 
-    public async Task<List<CategoryReadDTO>> GetAllCategoriesAsync()
+    public async Task<List<CategoryReadDTO>> GetAllCategoriesAsync(System.Threading.CancellationToken cancellationToken = default)
     {
         var cacheKey = "Categories";
-        var cachedCategories = await _cachingService.GetAsync<List<CategoryReadDTO>>(cacheKey);
+        var cachedCategories = await _cachingService.GetAsync<List<CategoryReadDTO>>(cacheKey, cancellationToken);
 
         if (cachedCategories != null)
         {
@@ -36,38 +36,36 @@ public class CategoryService : ICategoryService
         var categories = _repository.GetAllCategories().ToList();
         var dtos = _mapper.Map<List<CategoryReadDTO>>(categories);
 
-        await _cachingService.SetAsync(cacheKey, dtos);
+        await _cachingService.SetAsync(cacheKey, dtos, cancellationToken: cancellationToken);
 
         return dtos;
     }
 
-    public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id)
+    public async Task<CategoryReadDTO?> GetCategoryByIdAsync(int id, System.Threading.CancellationToken cancellationToken = default)
     {
         var cacheKey = $"Category_{id}";
-        var cachedCategory = await _cachingService.GetAsync<CategoryReadDTO>(cacheKey);
+        var cachedCategory = await _cachingService.GetAsync<CategoryReadDTO>(cacheKey, cancellationToken);
         
         if (cachedCategory != null)
         {
             return cachedCategory;
         }
 
-        var category = await _repository.GetCategoryByIdAsync(id);
+        var category = await _repository.GetCategoryByIdAsync(id, cancellationToken);
         if (category == null) return null;
         
         var dto = _mapper.Map<CategoryReadDTO>(category);
-        await _cachingService.SetAsync(cacheKey, dto);
+        await _cachingService.SetAsync(cacheKey, dto, cancellationToken: cancellationToken);
         
         return dto;
     }
 
-    //TODO: додати Automapper
-    public async Task<int?> CreateCategoryAsync(CategoryCreateDTO dto)
+    public async Task<int?> CreateCategoryAsync(CategoryCreateDTO dto, System.Threading.CancellationToken cancellationToken = default)
     {
         var category = _mapper.Map<Category>(dto);
-        var result = await _repository.AddCategoryAsync(category);
+        var result = await _repository.AddCategoryAsync(category, cancellationToken);
 
-        // Invalidate cache
-        await _cachingService.RemoveAsync("Categories");
+        await _cachingService.RemoveAsync("Categories", cancellationToken);
 
         return result;
     }
