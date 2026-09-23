@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation;
 using Shop.Application.Interfaces.Services;
 using Shop.Application.DTOs;
 using System.Threading.Tasks;
@@ -14,12 +15,18 @@ namespace Shop.Api.Controllers
         private readonly ICategoryService _categoryService;
         private readonly IImageService _imageService;
         private readonly StackExchange.Redis.IConnectionMultiplexer _redis;
+        private readonly IValidator<CategoryCreateDTO> _categoryCreateValidator;
 
-        public CategoryController(ICategoryService categoryService, IImageService imageService, StackExchange.Redis.IConnectionMultiplexer redis)
+        public CategoryController(
+            ICategoryService categoryService, 
+            IImageService imageService, 
+            StackExchange.Redis.IConnectionMultiplexer redis,
+            IValidator<CategoryCreateDTO> categoryCreateValidator)
         {
             _categoryService = categoryService;
             _imageService = imageService;
             _redis = redis;
+            _categoryCreateValidator = categoryCreateValidator;
         }
 
         [HttpGet]
@@ -53,6 +60,12 @@ namespace Shop.Api.Controllers
                 Slug = request.Slug,
                 ParentId = request.ParentId,
             };
+
+            var validationResult = await _categoryCreateValidator.ValidateAsync(createDto, cancellationToken);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
 
             var id = await _categoryService.CreateCategoryAsync(createDto, cancellationToken);
 
