@@ -47,24 +47,23 @@ namespace Shop.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateCategory([FromForm] CategoryCreateRequest request, CancellationToken cancellationToken)
         {
-            var imageUrl = string.Empty;
-            if (request.Image != null)
-            {
-                imageUrl = (await _imageService.SaveFileAsync(request.Image, "categories")) ?? string.Empty;
-            }
-
             var createDto = new CategoryCreateDTO
             {
                 Name = request.Name,
-                Url = imageUrl,
                 Slug = request.Slug,
                 ParentId = request.ParentId,
+                Url = string.Empty // Тимчасово порожній, поки не збережемо картинку
             };
 
             var validationResult = await _categoryCreateValidator.ValidateAsync(createDto, cancellationToken);
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult.Errors);
+            }
+
+            if (request.Image != null)
+            {
+                createDto.Url = (await _imageService.SaveFileAsync(request.Image, "categories")) ?? string.Empty;
             }
 
             var id = await _categoryService.CreateCategoryAsync(createDto, cancellationToken);
