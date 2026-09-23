@@ -13,7 +13,8 @@ namespace Shop.Application.Validators.Category
 
             RuleFor(x => x.Slug)
                 .NotEmpty().WithMessage("Slug is required")
-                .MaximumLength(100).WithMessage("Slug cannot exceed 100 characters");
+                .MaximumLength(100).WithMessage("Slug cannot exceed 100 characters")
+                .Matches("^[a-zA-Z0-9-]+$").WithMessage("Slug must contain only latin letters, numbers, and hyphens");
         }
     }
 }
