@@ -3,9 +3,9 @@ using Shop.Application.DTOs;
 
 namespace Shop.Application.Validators.Category
 {
-    public class CategoryCreateDTOValidator : AbstractValidator<CategoryCreateDTO>
+    public class CreateCategoryValidator : AbstractValidator<CategoryCreateDTO>
     {
-        public CategoryCreateDTOValidator()
+        public CreateCategoryValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Назва категорії є обов'язковою")

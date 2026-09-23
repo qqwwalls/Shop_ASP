@@ -110,9 +110,9 @@ namespace Shop.Api
             // ================= MediatR =================
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Shop.Application.Queries.GetProductById.GetProductByIdQuery).Assembly));
 
-            // ================= FluentValidation =================
+            //======================VALIDATORS=================
             builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddValidatorsFromAssemblyContaining<Shop.Application.Validators.Category.CategoryCreateDTOValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<Shop.Application.Validators.Category.CreateCategoryValidator>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
