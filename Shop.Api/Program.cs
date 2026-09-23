@@ -114,7 +114,10 @@ namespace Shop.Api
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddValidatorsFromAssemblyContaining<Shop.Application.Validators.Category.CreateCategoryValidator>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options => 
+            {
+                options.ModelValidatorProviders.Clear(); 
+            });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c => 
             {
