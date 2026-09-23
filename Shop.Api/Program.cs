@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace Shop.Api
 {
@@ -107,6 +109,10 @@ namespace Shop.Api
 
             // ================= MediatR =================
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Shop.Application.Queries.GetProductById.GetProductByIdQuery).Assembly));
+
+            // ================= FluentValidation =================
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddValidatorsFromAssemblyContaining<Shop.Application.Validators.Category.CategoryCreateDTOValidator>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
