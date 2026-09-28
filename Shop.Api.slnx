@@ -5,5 +5,5 @@
   <Project Path="Shop.Infrastructure/Shop.Infrastructure.csproj" />
   <Project Path="RabbitMqReader/RabbitMqReader.csproj" />
   <Project Path="MyCalculator/MyCalculator.csproj" />
-  <Project Path="MyCalculator.Tests/MyCalculator.Tests.csproj" />
+  <Project Path="Shop.Test/Shop.Test.csproj" />
 </Solution>

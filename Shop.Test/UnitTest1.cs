@@ -1,12 +1,12 @@
 using Xunit;
 using MyCalculator;
 
-namespace MyCalculator.Tests
+namespace Shop.Test
 {
-    public class CalculatorTests
+    public class CalculatorTest
     {
         [Fact]
-        public void Sum_AddsTwoNumbers_ReturnsCorrectResult()
+        public void SumTest()
         {
             // Arrange
             var calculator = new Calculator();
