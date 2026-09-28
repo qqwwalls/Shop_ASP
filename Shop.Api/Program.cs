@@ -8,10 +8,11 @@ using Shop.Infrastructure.Data;
 using Shop.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Shop.Api.Extensions;
 
 namespace Shop.Api
 {
@@ -58,17 +59,8 @@ namespace Shop.Api
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            builder.Services.AddScoped<IProductService, ProductService>();
-            builder.Services.AddScoped<ICategoryService, CategoryService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IHashHelper, HashHelper>();
-            builder.Services.AddScoped<IJWTService, JWTService>();
-
-            builder.Services.AddScoped<IProductRepository, ProductRepository>();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-
-            builder.Services.AddScoped<Shop.Api.Interfaces.IImageService, Shop.Api.Services.ImageService>();
+            builder.Services.ConfigureApplicationServices();
+            builder.Services.ConfigureRepositories();
 
             // ================= Caching =================
             // Configure Redis Cache
@@ -110,9 +102,7 @@ namespace Shop.Api
             // ================= MediatR =================
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Shop.Application.Queries.GetProductById.GetProductByIdQuery).Assembly));
 
-            //======================VALIDATORS=================
-            builder.Services.AddFluentValidationAutoValidation();
-            builder.Services.AddValidatorsFromAssemblyContaining<Shop.Application.Validators.Category.CreateCategoryValidator>();
+            builder.Services.ConfigureValidators();
 
             builder.Services.AddControllers(options => 
             {
