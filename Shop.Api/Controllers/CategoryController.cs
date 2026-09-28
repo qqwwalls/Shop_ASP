@@ -40,6 +40,9 @@ namespace Shop.Api.Controllers
         public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id, CancellationToken cancellationToken)
         {
             var dto = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
+            if (dto == null) 
+                throw new Shop.Api.HandlerExceptions.NotFoundException($"Категорія з ID {id} не знайдена");
+            
             return Ok(dto);
         }
 

@@ -5,9 +5,8 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
-using Shop.Application.Exceptions;
 
-namespace Shop.Api.Middlewares
+namespace Shop.Api.HandlerExceptions
 {
     public class GlobalExceptionHandler : IExceptionHandler
     {

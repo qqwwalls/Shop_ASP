@@ -13,7 +13,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Shop.Api.Extensions;
-using Shop.Api.Middlewares;
+using Shop.Api.HandlerExceptions;
 
 namespace Shop.Api
 {

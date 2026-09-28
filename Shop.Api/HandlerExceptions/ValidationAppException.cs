@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Shop.Application.Exceptions
+namespace Shop.Api.HandlerExceptions
 {
     public class ValidationAppException : Exception
     {
