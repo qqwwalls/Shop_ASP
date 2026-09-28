@@ -111,6 +111,7 @@ namespace Shop.Api
             builder.Services.AddControllers(options => 
             {
                 options.ModelValidatorProviders.Clear(); 
+                options.Filters.Add(new Microsoft.AspNetCore.Mvc.ProducesAttribute("application/json"));
             });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c => 
