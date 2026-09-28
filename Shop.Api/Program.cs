@@ -13,6 +13,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Shop.Api.Extensions;
+using Shop.Api.Middlewares;
 
 namespace Shop.Api
 {
@@ -104,6 +105,9 @@ namespace Shop.Api
 
             builder.Services.ConfigureValidators();
 
+            builder.Services.AddProblemDetails();
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
             builder.Services.AddControllers(options => 
             {
                 options.ModelValidatorProviders.Clear(); 
@@ -138,8 +142,8 @@ namespace Shop.Api
             var app = builder.Build();
 
             // ================= Exception Handling =================
-            // Перехоплює всі необроблені помилки та направляє їх на ErrorController
-            app.UseExceptionHandler("/error");
+            // Використовуємо новий глобальний обробник помилок
+            app.UseExceptionHandler();
 
             // ================= Seeding =================
             using (var scope = app.Services.CreateScope())

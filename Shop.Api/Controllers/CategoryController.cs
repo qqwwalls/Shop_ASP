@@ -40,7 +40,6 @@ namespace Shop.Api.Controllers
         public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id, CancellationToken cancellationToken)
         {
             var dto = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
-            if (dto == null) return NotFound();
             return Ok(dto);
         }
 

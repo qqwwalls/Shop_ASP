@@ -52,7 +52,8 @@ public class CategoryService : ICategoryService
         }
 
         var category = await _repository.GetCategoryByIdAsync(id, cancellationToken);
-        if (category == null) return null;
+        if (category == null) 
+            throw new Shop.Application.Exceptions.NotFoundException($"Категорія з ID {id} не знайдена");
         
         var dto = _mapper.Map<CategoryReadDTO>(category);
         await _cachingService.SetAsync(cacheKey, dto, cancellationToken: cancellationToken);
