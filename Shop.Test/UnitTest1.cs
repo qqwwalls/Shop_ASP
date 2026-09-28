@@ -8,16 +8,15 @@ namespace Shop.Test
         [Fact]
         public void SumTest()
         {
-            // Arrange
-            var calculator = new Calculator();
-            int a = 5;
-            int b = 10;
-
-            // Act
+            //A - Arrange
+            int a = 10, b = 20;
+            Calculator calculator = new Calculator();
+            
+            //A - Act
             int result = calculator.Sum(a, b);
 
-            // Assert
-            Assert.Equal(15, result);
+            //A - Assert
+            Assert.Equal(30, result);
         }
     }
 }
