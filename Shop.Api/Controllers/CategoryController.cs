@@ -36,13 +36,14 @@ namespace Shop.Api.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id, CancellationToken cancellationToken)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<CategoryReadDTO>> GetCategoryById(int id)
         {
-            var dto = await _categoryService.GetCategoryByIdAsync(id, cancellationToken);
-            if (dto == null) 
-                throw new Shop.Api.HandlerExceptions.NotFoundException($"Категорія з ID {id} не знайдена");
-            
+            var dto = await _categoryService.GetCategoryByIdAsync(id, default);
+
+            if (dto == null)
+                return NotFound();
+
             return Ok(dto);
         }
 
