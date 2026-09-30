@@ -44,11 +44,11 @@ namespace Shop.Api.Extensions
         public static void ConfigurePollyHttpClients(this IServiceCollection services)
         {
             services.AddHttpClient<ICurrencyService, Shop.Infrastructure.Services.CurrencyService>()
-                .AddPolicyHandler(GetRetryPolicy())
-                .AddPolicyHandler(GetCircuitBreakerPolicy());
+                .AddPolicyHandler((sp, request) => GetRetryPolicy(sp))
+                .AddPolicyHandler((sp, request) => GetCircuitBreakerPolicy(sp));
         }
 
-        private static Polly.IAsyncPolicy<System.Net.Http.HttpResponseMessage> GetRetryPolicy()
+        private static Polly.IAsyncPolicy<System.Net.Http.HttpResponseMessage> GetRetryPolicy(IServiceProvider sp)
         {
             return Polly.Policy
                 .Handle<System.Net.Http.HttpRequestException>()
@@ -58,19 +58,29 @@ namespace Shop.Api.Extensions
                     retryAttempt => System.TimeSpan.FromSeconds(System.Math.Pow(2, retryAttempt)), // 3 спроби, експоненційна затримка (2, 4, 8 сек)
                     (result, timeSpan, retryCount, context) =>
                     {
-                        System.Console.WriteLine($"[POLLY] Retry {retryCount} after {timeSpan.TotalSeconds} seconds due to: {result.Exception?.Message ?? result.Result?.StatusCode.ToString()}");
+                        var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Shop.Infrastructure.Services.CurrencyService>>();
+                        logger.LogWarning($"[POLLY] Retry {retryCount} after {timeSpan.TotalSeconds} seconds due to: {result.Exception?.Message ?? result.Result?.StatusCode.ToString()}");
                     });
         }
 
-        private static Polly.IAsyncPolicy<System.Net.Http.HttpResponseMessage> GetCircuitBreakerPolicy()
+        private static Polly.IAsyncPolicy<System.Net.Http.HttpResponseMessage> GetCircuitBreakerPolicy(IServiceProvider sp)
         {
             return Polly.Policy
                 .Handle<System.Net.Http.HttpRequestException>()
                 .OrResult<System.Net.Http.HttpResponseMessage>(r => !r.IsSuccessStatusCode)
                 .CircuitBreakerAsync(2, System.TimeSpan.FromSeconds(30), 
-                    onBreak: (result, timespan) => System.Console.WriteLine($"[POLLY] Circuit Breaker OPENED for {timespan.TotalSeconds} seconds!"),
-                    onReset: () => System.Console.WriteLine("[POLLY] Circuit Breaker RESET (Closed) - Requests flowing again."),
-                    onHalfOpen: () => System.Console.WriteLine("[POLLY] Circuit Breaker HALF-OPEN - Testing one request..."));
+                    onBreak: (result, timespan) => {
+                        var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Shop.Infrastructure.Services.CurrencyService>>();
+                        logger.LogError($"[POLLY] Circuit Breaker OPENED for {timespan.TotalSeconds} seconds!");
+                    },
+                    onReset: () => {
+                        var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Shop.Infrastructure.Services.CurrencyService>>();
+                        logger.LogInformation("[POLLY] Circuit Breaker RESET (Closed) - Requests flowing again.");
+                    },
+                    onHalfOpen: () => {
+                        var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<Shop.Infrastructure.Services.CurrencyService>>();
+                        logger.LogInformation("[POLLY] Circuit Breaker HALF-OPEN - Testing one request...");
+                    });
         }
     }
 }
