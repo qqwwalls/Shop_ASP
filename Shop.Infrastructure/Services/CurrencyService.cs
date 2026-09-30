@@ -23,15 +23,17 @@ namespace Shop.Infrastructure.Services
 
             var content = await response.Content.ReadAsStringAsync();
 
-            dynamic data = JsonConvert.DeserializeObject(content);
+            // Використовуємо строго типізовану модель замість dynamic
+            var data = JsonConvert.DeserializeObject<System.Collections.Generic.List<Shop.Application.DTOs.CurrencyRateDto>>(content);
 
-            // API викладача насправді повертає масив валют НБУ (JArray), 
-            // тому шукаємо об'єкт з cc == "USD"
-            foreach (var item in data)
+            if (data != null)
             {
-                if (item.cc == "USD")
+                foreach (var item in data)
                 {
-                    return (decimal)item.rate;
+                    if (item.cc == "USD")
+                    {
+                        return item.rate;
+                    }
                 }
             }
 
