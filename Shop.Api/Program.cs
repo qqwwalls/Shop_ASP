@@ -104,6 +104,7 @@ namespace Shop.Api
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Shop.Application.Queries.GetProductById.GetProductByIdQuery).Assembly));
 
             builder.Services.ConfigureValidators();
+            builder.Services.ConfigurePollyHttpClients();
 
             builder.Services.AddProblemDetails();
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
