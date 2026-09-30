@@ -16,9 +16,8 @@ namespace Shop.Infrastructure.Services
 
         public async Task<decimal> GetUsdRateAsync()
         {
-            // Используем тестовый URL, который вернет 500 ошибку, чтобы Polly срабатывал и делал ретраи
-            // Но в идеале здесь должен быть реальный API.
-            var response = await _httpClient.GetAsync("https://httpstat.us/500");
+            // Використовуємо сервер викладача
+            var response = await _httpClient.GetAsync("https://7c49-37-52-79-159.ngrok-free.app/currency");
 
             response.EnsureSuccessStatusCode();
 
