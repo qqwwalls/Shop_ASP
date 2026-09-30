@@ -25,7 +25,17 @@ namespace Shop.Infrastructure.Services
 
             dynamic data = JsonConvert.DeserializeObject(content);
 
-            return (decimal)data.rates.UAH;
+            // API викладача насправді повертає масив валют НБУ (JArray), 
+            // тому шукаємо об'єкт з cc == "USD"
+            foreach (var item in data)
+            {
+                if (item.cc == "USD")
+                {
+                    return (decimal)item.rate;
+                }
+            }
+
+            return 0m;
         }
     }
 }
