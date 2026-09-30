@@ -24,7 +24,7 @@ namespace Shop.Infrastructure.Services
             var content = await response.Content.ReadAsStringAsync();
 
             // Використовуємо строго типізовану модель замість dynamic
-            var data = JsonConvert.DeserializeObject<System.Collections.Generic.List<Shop.Application.DTOs.CurrencyRateDto>>(content);
+            var data = JsonConvert.DeserializeObject<System.Collections.Generic.List<Shop.Application.Models.CurrencyRateModel>>(content);
 
             if (data != null)
             {
